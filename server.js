@@ -20,13 +20,12 @@ const db = mysql.createConnection(
     password: 'Mysqlpass@123',
     database: 'company_db'
   },
-  console.log(`Connected to the company database.`)
 );
 
 const mySqlQueries = new Queries(db);
 
-const chooseOption = () => {
-  return inquirer
+function chooseOption() {
+  inquirer
   .prompt([
     {
       type: 'list',
@@ -36,18 +35,77 @@ const chooseOption = () => {
     },
   ])
   .then(function (selectedChoice) {
-    console.log("choices obj " + selectedChoice.option);
-    if (selectedChoice.option === 'View all departments') {
-      console.log("in choice view all dep ");
-      mySqlQueries.viewAllDepartments();
-    } else if(selectedChoice.option === 'View all roles') {
-      mySqlQueries.viewAllRoles();
-    } else if(selectedChoice.option === 'View all employees') {
-      mySqlQueries.viewAllEmployees();
+    switch (selectedChoice.option) {
+      case 'View all departments':
+        viewAllDeps();
+        break;
+      case 'View all roles':
+        viewAllRoles();
+        break;
+      case 'View all employees':
+        viewAllEmps();
+        break;
+      case 'Add a department':
+        addDep();
+        break;
+      case 'Add a role':
+        addRole();
+        break;
     }
-    return chooseOption();
   })
 };
+
+function viewAllDeps() {
+  mySqlQueries.viewAllDepartments();
+  chooseOption();
+}
+
+function viewAllRoles() {
+  mySqlQueries.viewAllRoles();
+  chooseOption();
+}
+
+function viewAllEmps() {
+  mySqlQueries.viewAllEmployees();
+  chooseOption();
+}
+
+function addDep() {
+  inquirer.prompt([
+    {
+      type: 'input',
+      name: 'departmentName',
+      message: "Enter department name",
+    }
+  ]).then(function (answer) {
+    mySqlQueries.addDepartment(answer.departmentName);
+    chooseOption();
+  })
+}
+
+function addRole() {
+  inquirer.prompt([
+    {
+      type: 'input',
+      name: 'roleName',
+      message: "Enter role name",
+    },
+    {
+      type: 'input',
+      name: 'salary',
+      message: "Enter salary",
+    },
+    {
+      type: 'list',
+      name: 'department',
+      message: "Enter department",
+      choices: mySqlQueries.getAllDepartments()
+    }
+  ]).then(function (answer) {
+    mySqlQueries.addRole(answer.roleName, answer.salary, answer.department);
+    chooseOption();
+  })
+}
 
 // Default response for any other request (Not Found)
 app.use((req, res) => {
@@ -55,10 +113,6 @@ app.use((req, res) => {
 });
   
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
 });
 
-chooseOption()
-.catch(err => {
-  console.log(err);
-});
+chooseOption();

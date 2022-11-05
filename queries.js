@@ -35,22 +35,21 @@ class Queries {
     }
 
     addDepartment(departmentName) {
-        const sql = `INSERT INTO department (name) VALUES ($departmentName);`;
+        console.log("department name = " + departmentName);
+        const sql = `INSERT INTO department (name) VALUES ("${departmentName}");`;
         this.db.query(sql, (err, res) => {
           if (err) {
             throw err;
           }
-          console.log(res);
         });
     }
 
-    addRole(title, salary, department_id) {
+    addRole(title, salary, department) {
       const sql = `INSERT INTO role (title, salary, department_id) VALUES ($title, $salary, $department_id);`;
       this.db.query(sql, (err, res) => {
         if (err) {
           throw err;
         }
-        console.log(res);
       });
     }
 
@@ -60,7 +59,6 @@ class Queries {
         if (err) {
           throw err;
         }
-        console.log(res);
       });
     }
 
@@ -72,6 +70,34 @@ class Queries {
           }
           console.log(res);
         });
+    }
+
+    getAllRoles() {
+      const sql = `SELECT * FROM role;`;
+      var roleArr = [];
+      this.db.query(sql, (err, res) => {
+          if (err) {
+            throw err;
+          }
+          for (var i = 0; i < res.length; i++) {
+            roleArr.push(res[i].title);
+          }
+        });
+        return roleArr;
+    }
+
+    getAllDepartments() {
+      const sql = `SELECT * FROM department;`;
+      var depArr = [];
+      this.db.query(sql, (err, res) => {
+          if (err) {
+            throw err;
+          }
+          for (var i = 0; i < res.length; i++) {
+            depArr.push(res[i].name);
+          }
+        });
+        return depArr;
     }
 }
 
