@@ -31,7 +31,7 @@ function chooseOption() {
       type: 'list',
       name: 'option',
       message: "What would you like to do?",
-      choices: ['View all departments', 'View all roles', 'View all employees', 'Add a department', 'Add a role', 'Add an employee', 'Update an employee role']
+      choices: ['View all departments', 'View all roles', 'View all employees', 'Add a department', 'Add a role', 'Add an employee', 'Update an employee role', 'Quit']
     },
   ])
   .then(function (selectedChoice) {
@@ -51,6 +51,14 @@ function chooseOption() {
       case 'Add a role':
         addRole();
         break;
+      case 'Add an employee':
+        addEmployee();
+        break;
+      case 'Update an employee role':
+        updateEmployeeRole();
+        break;
+      case 'Quit':
+        process.exit();
     }
   })
 };
@@ -103,6 +111,58 @@ function addRole() {
     }
   ]).then(function (answer) {
     mySqlQueries.addRole(answer.roleName, answer.salary, answer.department);
+    chooseOption();
+  })
+}
+
+function addEmployee() {
+  inquirer.prompt([
+    {
+      type: 'input',
+      name: 'firstName',
+      message: "Enter employee first name",
+    },
+    {
+      type: 'input',
+      name: 'lastName',
+      message: "Enter employee last name",
+    },
+    {
+      type: 'list',
+      name: 'role',
+      message: "Enter role",
+      choices: mySqlQueries.getAllRoles()
+    },
+    {
+      type: 'list',
+      name: 'managerId',
+      message: "Enter manager",
+      choices: mySqlQueries.getAllManagerIds()
+    }
+  ]).then(function (answer) {
+    mySqlQueries.addEmployee(answer.firstName, answer.lastName, answer.role, answer.managerId);
+    chooseOption();
+  })
+}
+
+function updateEmployeeRole() {
+  inquirer.prompt([
+    {
+      type: 'list',
+      name: 'employee',
+      message: "Choose employee",
+      choices: mySqlQueries.getAllEmployees()
+    },
+    {
+      type: 'list',
+      name: 'role',
+      message: "Choose role",
+      choices: mySqlQueries.getAllRoles()
+    }
+  ]).then(function (answer) {
+    const roleId = mySqlQueries.getRoleId(answer.role);
+    console.log("role Id = " + roleId);
+    mySqlQueries.updateEmployeeRole(answer.employee, roleId);
     chooseOption();
   })
 }
